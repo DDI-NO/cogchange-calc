@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cognitive Change Norm Calculator</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+    <style media="screen">
+        #calc {
+          padding: 25px;
+        }
+        .measures {
+          margin-bottom: 25px;
+        }
+      </style>
+</head>
+<body class="bg-light">
+    
+    <div id="root">
+
+    </div>
+    
+
+    <!-- UI components -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" charset="utf-8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <!-- Scaling and prediction computations -->
+    <!-- in-memory browser SQL database for easy look-up tables -->
+	<script src="https://cdn.jsdelivr.net/alasql/latest/alasql.min.js"></script>
+    <script type="text/javascript">
+
+        try {
+			// Scaling look-up tables
+            alasql("CREATE TABLE cerad_learning_baseline (scaled number, lower number, upper number)");
+            alasql("CREATE TABLE cerad_recall_baseline (scaled number, lower number, upper number)");
+			alasql("CREATE TABLE tmt_a_baseline (scaled number, lower number, upper number)");
+			alasql("CREATE TABLE tmt_b_baseline (scaled number, lower number, upper number)");
+            alasql("CREATE TABLE fas_baseline (scaled number, lower number, upper number)");
+            alasql("CREATE TABLE vosp_baseline (scaled number, lower number, upper number)");
+
+            alasql("CREATE TABLE cerad_learning_followup (scaled number, lower number, upper number)");
+            alasql("CREATE TABLE cerad_recall_followup (scaled number, lower number, upper number)");
+			alasql("CREATE TABLE tmt_a_followup (scaled number, lower number, upper number)");
+			alasql("CREATE TABLE tmt_b_followup (scaled number, lower number, upper number)");
+            alasql("CREATE TABLE fas_followup (scaled number, lower number, upper number)");
+            alasql("CREATE TABLE vosp_followup (scaled number, lower number, upper number)");
+			
+            alasql("INSERT INTO cerad_learning_baseline VALUES(3, 13, 13),  (4, 14, 14), (5, 15, 16), (6, 17, 17), (7, 18, 18), (8, 19, 19), (9, 20, 20), (10, 21, 21), (11, 22, 23), (12, 24, 24), (13, 25, 25), (15, 26, 26), (17, 27, 27), (18, 28, 28), (19, 29, 29)");
+            alasql("INSERT INTO cerad_learning_followup VALUES(1, 12, 12), (3, 13, 13), (4, 14, 14), (5, 15, 15), (6, 16, 17), (7, 18, 19), (8, 20, 20), (9, 21, 22), (10, 23, 23), (11, 24, 24), (13, 25, 26), (14, 27, 27), (16, 28, 28), (18, 29, 29), (19, 30, 30)");
+
+            alasql("INSERT INTO cerad_recall_baseline VALUES(2, 1, 1), (3, 2, 3), (5, 4, 4), (6, 5, 5), (8, 6, 6),(10, 7, 7), (11, 8, 8),(13, 9, 9), (14, 10, 10)");
+            alasql("INSERT INTO cerad_recall_followup VALUES(3, 2, 2), (4, 3, 3), (5, 4, 4), (6, 5, 5), (8, 6, 6), (9, 7, 7), (11, 8, 8), (13, 9, 9), (14, 10, 10)");
+			
+            alasql("INSERT INTO tmt_a_baseline VALUES(1, 66,66, 66,66),(3, 65, 65),(4, 63,64, 63,64),(5, 58,62, 58,62),(6, 54,57, 54,57),(7, 47,53, 47,53), (8, 41,46, 41,46),(9, 37,40, 37,40),(10, 34,36, 34,36),(11, 30,33, 30,33),(12, 27,29, 27,29),(13, 26, 26),(14, 22,25, 22,25),(15, 21, 21), (16, 20, 20), (17, 19, 19), (18, 17,18, 17,18), (19, 16, 16)");
+            alasql("INSERT INTO tmt_a_followup VALUES(1, 82, 82), (2, 81, 81), (3, 75,80), (4, 65,74), (5, 56,64), (6, 49,55), (7, 45,48), (8, 41,44), (9, 38,40), (10, 34,37), (11, 30,33), (12, 26,29), (13, 24,25), (14, 22,23), (15, 21, 21), (17, 18,20), (18, 16,17),(19, 15,15)");
+
+            alasql("INSERT INTO tmt_b_baseline VALUES(1, 186,186), (2, 171,185), (3, 161,170), (4, 159,160), (5, 139,158), (6, 119,138), (7, 108,118), (8, 98,107), (9, 88,97), (10, 80,87), (11, 73,79), (12, 65,72), (13, 60,64), (14, 52,59), (15, 48,51), (16, 43,47), (17, 41,42), (18, 38,40), (19, 35,37), (20, 34,34)");
+            alasql("INSERT INTO tmt_b_followup VALUES(1, 229,229), (2, 197,228), (3, 174,196), (4, 161,173), (5, 139,160), (6, 130,138), (7, 112,129), (8, 97,111), (9, 87,96), (10, 79,86), (11, 71,78), (12, 62,70), (13, 56,61), (14, 51,55), (15, 45,50), (16, 41,44), (17, 40, 40), (18, 39, 39), (19, 38,38)");
+
+            alasql("INSERT INTO fas_baseline VALUES(2, 20,20), (3, 21, 21), (4, 22, 22), (5, 23,24), (6, 25,26), (7, 27,28), (8, 29,31), (9, 32,38), (10, 39,41), (11, 42,44), (12, 45,48), (13, 49,51), (14, 52,56), (15, 57,62), (16, 63,67), (17, 68, 68), (18, 69, 69), (19, 70,70)");
+            alasql("INSERT INTO fas_followup VALUES(1, 17,17), (2, 18,19), (4, 20,21), (5, 22,25), (6, 26,29), (7, 30,31), (8, 32,35), (9, 36,39), (10, 40,42), (11, 43,45), (12, 46,49), (13, 50,54), (14, 55,58), (15, 59,65), (16, 66,70), (17, 71,76), (18, 77,81), (19, 82,83), (20, 84,84)");
+
+            alasql("INSERT INTO vosp_baseline VALUES(1, 12,12), (2, 13, 13), (3, 14, 14), (4, 15, 15), (5, 16, 16), (6, 17, 17), (7, 18,19), (8, 20, 20), (9, 21, 21), (10, 22,23), (11, 24, 24), (12, 25,26), (13, 27, 27), (15, 28, 28), (16, 29,29)");
+            alasql("INSERT INTO vosp_followup VALUES(1, 12,12), (2, 13,14), (3, 15, 15), (4, 16, 16), (5, 17, 17), (6, 18, 18), (7, 19,20), (8, 21, 21), (9, 22, 22), (10, 23, 23), (11, 24, 24), (12, 25,26), (13, 27, 27), (15, 28, 28), (16, 29,29)");
+		} catch (e) {
+			console.log(e);
+		}
+
+        const models = {
+            'cerad_learning': {
+                name: 'cerad_learning',
+                label: 'CERAD learning',
+                range: {
+                    baseline: [13, 29],
+                    followup: [12, 30]
+                },
+                intercept: 9.02993,
+                beta_scaled: 0.40935,
+                beta_sex: 0.75077, 
+                beta_age: -0.09780, 
+                beta_edu_years: 0.22129,
+                sd: 2.562279,
+            },
+            'cerad_recall': {
+                label: "CERAD recall", 
+                name: 'cerad_recall',
+                range: {
+                    baseline: [1, 10],
+                    followup: [2, 10]
+                },
+                intercept: 9.02993,
+                beta_scaled: 0.40935,
+                beta_sex: 0.75077, 
+                beta_age: -0.09780, 
+                beta_edu_years: 0.22129,
+                sd: 2.562279,
+            },
+            'tmt_a':{
+                label:"TMT-A",
+                name:'tmt_a',
+                range: {
+                    baseline: [16, 66],
+                    followup: [15, 82]
+                },
+                intercept:11.69765, 
+                beta_scaled:0.49043, 
+                beta_sex:0, 
+                beta_age:-0.10151, 
+                beta_edu_years:0,
+                sd:2.346442,
+            },
+            'tmt_b': {
+                label: "TMT-B",
+                name: 'tmt_b',
+                range: {
+                    baseline: [34, 186],
+                    followup: [38, 229]
+                },
+                intercept: 3.84766, 
+                beta_scaled: 0.62914, 
+                beta_sex: 0, 
+                beta_age: 0, 
+                beta_edu_years: 0,
+                sd: 2.336511,
+            },
+
+            'fas': {
+                label: "FAS",
+                name: 'fas',
+                range: {
+                    baseline: [20, 70],
+                    followup: [17, 84]
+                },
+                intercept: 2.39177,
+                beta_scaled: 0.76805, 
+                beta_sex: 0, 
+                beta_age: 0, 
+                beta_edu_years: 0,
+                sd: 2.146246,
+            },
+            'vosp': {
+                label: "VOSP",
+                name: 'vosp',
+                range: {
+                    baseline: [12, 29],
+                    followup: [12, 29]
+                },
+                intercept: 5.98706, 
+                beta_scaled: 0.72789, 
+                beta_sex: 0, 
+                beta_age: -0.05498, 
+                beta_edu_years: 0,
+                sd: 2.007496,
+            }
+        };
+
+        function findScaled(test, visit, raw) {
+			let scaled = null;
+            const table = test + "_" + visit;
+			try {
+				const query = "SELECT scaled from " + table + " where lower <= " + raw + " and " + raw + " <= upper";
+				// console.info(query);
+				const rs = alasql(query);
+				scaled = rs[0].scaled;
+				// console.info(scaled);
+			} catch (e) {
+				console.error(e);
+			}
+			return scaled;
+		}
+
+		function truncate(value, test, visit) {
+            const model = models[test]
+            const range = model.range[visit]
+			const lower = range[0];
+			const upper = range[1];
+			const truncated = Math.min(Math.max(value, lower), upper);
+			return truncated;
+		}
+
+        function compute_score(test, intercept, baseline, followup, beta_scaled, sex, beta_sex, age, beta_age, edu_years, beta_edu_years, sd){
+            
+            baseline = parseInt(baseline);
+            followup = parseInt(followup);
+            age = parseInt(age);
+            edu_years = parseInt(edu_years);
+            sex = parseInt(sex);
+
+            const trunc_baseline = truncate(baseline, test, "baseline");
+            const trunc_followup = truncate(followup, test, "followup");
+            const baseline_scaled = findScaled(test, "baseline", trunc_baseline);
+            const followup_scaled = findScaled(test, "followup", trunc_followup);
+            const predicted_followup = intercept + (baseline_scaled * beta_scaled) + (sex * beta_sex) + (age * beta_age) + (edu_years * beta_edu_years);
+            const z = ((followup_scaled - predicted_followup) / sd).toFixed(2);
+            console.group(test, 'computed');
+            console.log("baseline",baseline); 
+            console.log("followup",followup); 
+            console.log("age",age); 
+            console.log("edu_years",edu_years); 
+            console.log("sex",sex); 
+            console.log("baseline_scaled",baseline_scaled); 
+            console.log("followup_scaled",followup_scaled);
+            console.log("predicted_followup",predicted_followup);
+            console.log("followup_scaled - predicted_followup", followup_scaled - predicted_followup);
+            console.log("Z", z);
+            console.groupEnd();
+            
+            return z;
+        }
+    </script>
+    <script type="text/babel">
+        function Demographics (props) {
+            // console.log(props)
+            const age_placeholder = "" + props.age_min + " - " + props.age_max;
+            return (<div class="measures">
+                    <div class="form-group row">
+                        <label for="age" class="col-sm-2 col-form-label">Age</label>
+                        <div class="col-sm-4 col-4">
+                        <input name="age" type="number" class="form-control form-control-sm" id="age" 
+                            min={props.age_min} max={props.age_max} placeholder={age_placeholder} 
+                            onChange={props.handleChange} required />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="edu_years" class="col-sm-2 col-form-label">Years of education</label>
+                        <div class="col-sm-4">
+                            <input name="edu_years" type="number" class="form-control form-control-sm" id="edu" min="6" max="24" 
+                                onChange={props.handleChange}
+                                placeholder="6 - 24" required/>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="gender" class="col-sm-2 col-form-label">Sex</label>
+                        <div class="col-sm-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="sex" id="radio-male" value="0" onChange={props.handleChange} checked={props.sex === '0'} />
+                            <label class="form-check-label" for="radio-male">
+                            Male
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="sex" id="radio-female" value="1" onChange={props.handleChange} checked={props.sex === '1'}/>
+                            <label class="form-check-label" for="radio-female">
+                            Female
+                            </label>
+                        </div>
+                        </div>
+                    </div>
+                    </div>
+            );
+        }
+
+        
+        function Test(props){
+
+            const dem_available = (props.age !== '' && props.edu_years !== '');
+            let score = ''
+            if(dem_available && props.baseline !== '' && props.followup !== ''){
+                score = compute_score(props.name, props.intercept, props.baseline, props.followup, props.beta_scaled, props.sex, 
+                                        props.beta_sex, props.age, props.beta_age, props.edu_years, props.beta_edu_years, props.sd);
+            }
+            // console.log(props)
+            return (
+                <div class="form-group row">
+                        <label class="col-sm-2 col-form-label">{props.label}</label>
+                        <div class="col-sm-1">
+                            <input type="number" name={props.name + "_baseline"} class="form-control form-control-sm" onChange={props.handleChange} 
+                            value={props.baseline} disabled={!dem_available}/>
+                        </div>
+                        <div class="col-sm-1">
+                            <input type="number" name={props.name + "_followup"} class="form-control form-control-sm" onChange={props.handleChange} 
+                            value={props.followup} disabled={!dem_available}/>
+                        </div>
+                        <div class="col-sm-1">
+                            <input type="text" value={score} class="form-control form-control-sm" readonly="true"/>
+                        </div>
+                    </div>
+                    );
+        }
+        
+        
+        class Calc extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = {
+                    age: '',
+                    edu_years: '',
+                    sex: '0',
+                    cerad_learning_baseline: '',
+                    cerad_learning_followup: '',
+                    cerad_recall_baseline: '',
+                    cerad_recall_followup: '',
+                    tmt_a_baseline: '',
+                    tmt_a_followup: '',
+                    tmt_b_baseline: '',
+                    tmt_b_followup: '',
+                    fas_baseline: '',
+                    fas_followup: '',
+                    vosp_baseline: '',
+                    vosp_followup: '',
+                };
+                this.handleChange = this.handleChange.bind(this) 
+
+                
+            }
+
+            handleChange(event){
+                // console.log(event.target.name, event.target.value)
+                this.setState({
+                    [event.target.name]: event.target.value
+                })
+                
+            }
+
+            render(){
+                // console.log('rendering', this.state)
+                const model_components = [];
+                for (const item in models) {
+                    let model = models[item]
+                    model_components.push(
+                        <Test label={model.label} name={model.name} baseline={this.state[model.name + "_baseline"]} followup={this.state[model.name + "_followup"]}
+                                intercept={model.intercept} beta_scaled={model.beta_scaled} 
+                                beta_sex={model.beta_sex} beta_age={model.beta_age} beta_edu_years={model.beta_edu_years}
+                                sd={model.sd}
+                                age={this.state.age} edu_years={this.state.edu_years}
+                                sex={this.state.sex}
+                                handleChange={this.handleChange}/>
+                    );
+                };
+
+                return (
+                    <div class="container">
+                        <div class="py-5 text-center">
+
+                            <h2>Cognitive Change Norm Calculator</h2>
+                    
+                        </div>
+                        <div class="border rounded" id="calc">
+                            <Demographics age_min="41" age_max="84" age={this.state.age} edu_years={this.state.edu_years}
+                                sex={this.state.sex} 
+                                handleChange={this.handleChange}/>
+                            <div class="form-group row">
+                                <div class="col-sm-2 col-3"></div>
+                                <label class="col-sm-1 col-form-label">Baseline</label>
+                                <label class="col-sm-1 col-form-label">Follow-up</label>
+                                <label class="col-sm-1 col-form-label">Change</label>
+                            </div>
+                            {model_components}                            
+                        </div>
+                        <footer class="container py-5">
+                        <small>Created by the Dementia Disease Initiation (DDI) project; No guarantee or liability implied.<br/>
+                            Supplement of <em>Vollo et al (2022). Cognitive change norms in AD.</em></small>
+                        </footer>                       
+                    </div>
+                );
+            }
+        }
+        
+
+        const container = document.getElementById('root');
+        const root = ReactDOM.createRoot(container);
+        root.render(<Calc models={models}/>);
+
+    </script>
+</body>
+</html>
