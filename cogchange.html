@@ -15,6 +15,10 @@
         .measures {
           margin-bottom: 25px;
         }
+
+        @media(max-width:576px) {
+		    body{font-size: 10px;}
+		}
       </style>
 </head>
 <body class="bg-light">
@@ -219,37 +223,37 @@
             // console.log(props)
             const age_placeholder = "" + props.age_min + " - " + props.age_max;
             return (<div class="measures">
-                    <div class="form-group row">
-                        <label for="age" class="col-sm-2 col-form-label">Age</label>
-                        <div class="col-sm-4 col-4">
-                        <input name="age" type="number" class="form-control form-control-sm" id="age" 
-                            min={props.age_min} max={props.age_max} placeholder={age_placeholder} 
-                            onChange={props.handleChange} required />
+                    <div class="row mb-1">
+                        <label for="age" class="col-sm-2 col-7 col-form-label">Age</label>
+                        <div class="col-sm-4 col-5">
+                            <input name="age" type="number" class="form-control form-control-sm" id="age" 
+                                min={props.age_min} max={props.age_max} placeholder={age_placeholder} 
+                                onChange={props.handleChange} required />
                         </div>
                     </div>
-                    <div class="form-group row">
-                        <label for="edu_years" class="col-sm-2 col-form-label">Years of education</label>
-                        <div class="col-sm-4">
-                            <input name="edu_years" type="number" class="form-control form-control-sm" id="edu" min="6" max="24" 
+                    <div class="row">
+                        <label for="edu_years" class="col-sm-2 col-7 col-form-label">Years of education</label>
+                        <div class="col-sm-4 col-5 col-form-label">
+                            <input name="edu_years" type="number" class="form-control form-control-sm" id="edu_years" min="6" max="24" 
                                 onChange={props.handleChange}
                                 placeholder="6 - 24" required/>
                         </div>
                     </div>
-                    <div class="form-group row">
-                        <label for="gender" class="col-sm-2 col-form-label">Sex</label>
-                        <div class="col-sm-4">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="sex" id="radio-male" value="0" onChange={props.handleChange} checked={props.sex === '0'} />
-                            <label class="form-check-label" for="radio-male">
-                            Male
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="sex" id="radio-female" value="1" onChange={props.handleChange} checked={props.sex === '1'}/>
-                            <label class="form-check-label" for="radio-female">
-                            Female
-                            </label>
-                        </div>
+                    <div class="row">
+                        <label for="gender" class="col-sm-2 col-7 col-form-label">Sex</label>
+                        <div class="col-sm-4 col-5">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="sex" id="radio-male" value="0" onChange={props.handleChange} checked={props.sex === '0'} />
+                                <label class="form-check-label" for="radio-male">
+                                Male
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="sex" id="radio-female" value="1" onChange={props.handleChange} checked={props.sex === '1'}/>
+                                <label class="form-check-label" for="radio-female">
+                                Female
+                                </label>
+                            </div>
                         </div>
                     </div>
                     </div>
@@ -266,18 +270,20 @@
                                         props.beta_sex, props.age, props.beta_age, props.edu_years, props.beta_edu_years, props.sd);
             }
             // console.log(props)
+            const baseline_name = props.name + "_baseline";
+            const followup_name = props.name + "_followup";
             return (
-                <div class="form-group row">
-                        <label class="col-sm-2 col-form-label">{props.label}</label>
-                        <div class="col-sm-1">
-                            <input type="number" name={props.name + "_baseline"} class="form-control form-control-sm" onChange={props.handleChange} 
+                <div class="row mb-1">
+                        <label for={baseline_name} class="col-sm-2 col-3 col-form-label">{props.label}</label>
+                        <div class="col-sm-2 col-3">
+                            <input type="number" name={baseline_name} id={baseline_name} class="form-control form-control-sm" onChange={props.handleChange} 
                             value={props.baseline} disabled={!dem_available}/>
                         </div>
-                        <div class="col-sm-1">
-                            <input type="number" name={props.name + "_followup"} class="form-control form-control-sm" onChange={props.handleChange} 
+                        <div class="col-sm-2 col-3">
+                            <input type="number" name={followup_name} id={followup_name} class="form-control form-control-sm" onChange={props.handleChange} 
                             value={props.followup} disabled={!dem_available}/>
                         </div>
-                        <div class="col-sm-1">
+                        <div class="col-sm-2 col-3">
                             <input type="text" value={score} class="form-control form-control-sm" readonly="true"/>
                         </div>
                     </div>
@@ -342,20 +348,22 @@
                     
                         </div>
                         <div class="border rounded" id="calc">
-                            <Demographics age_min="41" age_max="84" age={this.state.age} edu_years={this.state.edu_years}
-                                sex={this.state.sex} 
-                                handleChange={this.handleChange}/>
-                            <div class="form-group row">
-                                <div class="col-sm-2 col-3"></div>
-                                <label class="col-sm-1 col-form-label">Baseline</label>
-                                <label class="col-sm-1 col-form-label">Follow-up</label>
-                                <label class="col-sm-1 col-form-label">Change</label>
-                            </div>
-                            {model_components}                            
+                            <form class="">
+                                <Demographics age_min="41" age_max="84" age={this.state.age} edu_years={this.state.edu_years}
+                                    sex={this.state.sex} 
+                                    handleChange={this.handleChange}/>
+                                <div class="row">
+                                    <div class="col-sm-2 col-3"></div>
+                                    <label class="col-sm-2 col-3 col-form-label">Baseline raw score</label>
+                                    <label class="col-sm-2 col-3 col-form-label">Follow-up raw score</label>
+                                    <label class="col-sm-2 col-3 col-form-label">Change Z-Score</label>
+                                </div>
+                                {model_components}
+                            </form>                            
                         </div>
                         <footer class="container py-5">
                         <small>Created by the Dementia Disease Initiation (DDI) project; No guarantee or liability implied.<br/>
-                            Supplement of <em>Vollo et al (2022). Cognitive change norms in AD.</em></small>
+                            Supplement of <em>Eliassen et al (2022). Regression-based cognitive change norms applied in biochemically defined predementia Alzheimer's disease.</em></small>
                         </footer>                       
                     </div>
                 );
